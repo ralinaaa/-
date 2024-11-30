@@ -1,0 +1,252 @@
+#include <iostream>
+#include <fstream> // Для работы с файлами
+#include <string>  // Для работы со строками
+
+using namespace std;
+
+// Структура для представления данных о трубе
+struct Pipe {
+    string name = "Нет данных"; // Имя трубы. По умолчанию "Нет данных", чтобы показать отсутствие информации
+    double length = 0.0; // Длина трубы в метрах
+    int diameter = 0; // Диаметр трубы в миллиметрах
+    bool is_under_repair = false; // Состояние трубы: false - работает, true - в ремонте
+};
+
+// Структура для представления данных о станции
+struct Station {
+    string name = "Нет данных"; // Имя станции. По умолчанию "Нет данных", чтобы показать отсутствие информации
+    int total_workshops = 0; // Общее количество цехов на станции
+    int active_workshops = 0; // Количество работающих цехов
+    double efficiency = 0.0; // Эффективность станции в процентах
+};
+
+// Проверка корректности ввода целого числа
+void check_integer(int& input) {
+    cin >> input;
+    while (cin.fail() || cin.peek() != '\n' || input < 0) {
+        cin.clear();
+        cin.ignore(10, '\n');
+        cout << "Введите корректное целое число: ";
+        cin >> input;
+    }
+}
+
+// Проверка корректности ввода числа с плавающей точкой
+void check_double(double& input) {
+    cin >> input;
+    while (cin.fail() || cin.peek() != '\n' || input <= 0) {
+        cin.clear();
+        cin.ignore(10, '\n');
+        cout << "Введите корректное положительное число: ";
+        cin >> input;
+    }
+}
+
+// Проверка корректности ввода логического значения (0 или 1)
+void check_bool(bool& input) {
+    cin >> input;
+    while (cin.fail() || cin.peek() != '\n' || (input != 0 && input != 1)) {
+        cin.clear();
+        cin.ignore(10, '\n');
+        cout << "Введите 0 (работает) или 1 (в ремонте): ";
+        cin >> input;
+    }
+}
+
+// Проверка ввода пункта меню
+void check_menu_choice(int& input) {
+    cin >> input;
+    while (cin.fail() || cin.peek() != '\n' || input < 1 || input > 8) {
+        cin.clear();
+        cin.ignore(10, '\n');
+        cout << "Введите число от 1 до 8: ";
+        cin >> input;
+    }
+}
+
+// Добавление новой трубы
+Pipe add_pipe() {
+    Pipe new_pipe;
+    cout << "Введите название трубы: ";
+    cin.ignore();
+    getline(cin, new_pipe.name);
+    cout << "Введите длину трубы (в метрах): ";
+    check_double(new_pipe.length);
+    cout << "Введите диаметр трубы (в миллиметрах): ";
+    check_integer(new_pipe.diameter);
+    cout << "Укажите состояние трубы (0 - работает, 1 - в ремонте): ";
+    check_bool(new_pipe.is_under_repair);
+    return new_pipe;
+}
+
+// Добавление новой станции
+Station add_station() {
+    Station new_station;
+    cout << "Введите название станции: ";
+    cin.ignore();
+    getline(cin, new_station.name);
+    cout << "Введите общее количество цехов: ";
+    check_integer(new_station.total_workshops);
+    cout << "Введите количество работающих цехов: ";
+    check_integer(new_station.active_workshops);
+    while (new_station.active_workshops > new_station.total_workshops) {
+        cout << "Количество работающих цехов не может превышать общее количество. Повторите ввод: ";
+        check_integer(new_station.active_workshops);
+    }
+    cout << "Введите эффективность станции (в процентах): ";
+    check_double(new_station.efficiency);
+    return new_station;
+}
+
+// Вывод информации о трубе
+void display_pipe_info(const Pipe& pipe) {
+    if (pipe.name == "Нет данных") {
+        cout << "Информация о трубе отсутствует." << endl;
+    } else {
+        cout << "Название трубы: " << pipe.name << endl;
+        cout << "Длина: " << pipe.length << " м" << endl;
+        cout << "Диаметр: " << pipe.diameter << " мм" << endl;
+        cout << "Состояние: " << (pipe.is_under_repair ? "В ремонте" : "Работает") << endl;
+    }
+}
+
+// Вывод информации о станции
+void display_station_info(const Station& station) {
+    if (station.name == "Нет данных") {
+        cout << "Информация о станции отсутствует." << endl;
+    } else {
+        cout << "Название станции: " << station.name << endl;
+        cout << "Общее количество цехов: " << station.total_workshops << endl;
+        cout << "Количество работающих цехов: " << station.active_workshops << endl;
+        cout << "Эффективность: " << station.efficiency << "%" << endl;
+    }
+}
+
+// Редактирование состояния трубы
+void edit_pipe(Pipe& pipe) {
+    if (pipe.name == "Нет данных") {
+        cout << "Труба не создана. Сначала добавьте трубу." << endl;
+    } else {
+        cout << "Укажите новое состояние трубы (0 - работает, 1 - в ремонте): ";
+        check_bool(pipe.is_under_repair);
+        cout << "Обновленная информация о трубе:" << endl;
+        display_pipe_info(pipe);
+    }
+}
+
+// Редактирование станции
+void edit_station(Station& station) {
+    if (station.name == "Нет данных") {
+        cout << "Станция не создана. Сначала добавьте станцию." << endl;
+    } else {
+        cout << "Введите новое количество работающих цехов: ";
+        check_integer(station.active_workshops);
+        while (station.active_workshops > station.total_workshops) {
+            cout << "Количество работающих цехов не может превышать общее количество. Повторите ввод: ";
+            check_integer(station.active_workshops);
+        }
+        cout << "Обновленная информация о станции:" << endl;
+        display_station_info(station);
+    }
+}
+
+// Сохранение данных в файл
+void save_data(const Pipe& pipe, const Station& station) {
+    ofstream file("data.txt");
+    if (!file.is_open()) {
+        cout << "Ошибка при сохранении данных." << endl;
+        return;
+    }
+    file << "Труба:" << endl;
+    file << pipe.name << endl;
+    file << pipe.length << endl;
+    file << pipe.diameter << endl;
+    file << pipe.is_under_repair << endl;
+
+    file << "Станция:" << endl;
+    file << station.name << endl;
+    file << station.total_workshops << endl;
+    file << station.active_workshops << endl;
+    file << station.efficiency << endl;
+
+    file.close();
+    cout << "Данные успешно сохранены." << endl;
+}
+
+// Загрузка данных из файла
+void load_data(Pipe& pipe, Station& station) {
+    ifstream file("data.txt");
+    if (!file.is_open()) {
+        cout << "Ошибка при загрузке данных. Файл не найден." << endl;
+        return;
+    }
+    string label;
+
+    getline(file, label);
+    getline(file, pipe.name);
+    file >> pipe.length >> pipe.diameter >> pipe.is_under_repair;
+    file.ignore();
+
+    getline(file, label);
+    getline(file, station.name);
+    file >> station.total_workshops >> station.active_workshops >> station.efficiency;
+    file.ignore();
+
+    file.close();
+    cout << "Данные успешно загружены." << endl;
+}
+
+// Главная функция
+int main() {
+    setlocale(LC_ALL, "Russian");
+    cout << "Добро пожаловать в программу управления трубами и станциями!" << endl;
+
+    Pipe pipe;
+    Station station;
+    int choice;
+
+    while (true) {
+        cout << "--------------------------------------------" << endl;
+        cout << "Выберите действие:" << endl;
+        cout << "1. Добавить трубу" << endl;
+        cout << "2. Добавить КС" << endl;
+        cout << "3. Просмотр всех объектов" << endl;
+        cout << "4. Редактировать трубу" << endl;
+        cout << "5. Редактировать КС" << endl;
+        cout << "6. Сохранить" << endl;
+        cout << "7. Загрузить" << endl;
+        cout << "0. Выход" << endl;
+        check_menu_choice(choice);
+
+        switch (choice) {
+            case 1:
+                pipe = add_pipe();
+                break;
+            case 2:
+                station = add_station();
+                break;
+            case 3:
+                display_pipe_info(pipe);
+                display_station_info(station);
+                break;
+            case 4:
+                edit_pipe(pipe);
+                break;
+            case 5:
+                edit_station(station);
+                break;
+            case 6:
+                save_data(pipe, station);
+                break;
+            case 7:
+                load_data(pipe, station);
+                break;
+            case 0:
+                cout << "Выход из программы" << endl;
+                return 0;
+            default:
+                cout << "Неверный выбор. Повторите попытку." << endl;
+        }
+    }
+    return 0;
+}
